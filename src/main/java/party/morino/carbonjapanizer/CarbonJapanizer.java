@@ -1,6 +1,6 @@
-package party.morino;
+package party.morino.carbonjapanizer;
 
-import party.morino.japanize.Japanizer;
+import party.morino.carbonjapanizer.japanize.Japanizer;
 import net.draycia.carbon.api.CarbonChatProvider;
 import net.draycia.carbon.api.events.CarbonChatEvent;
 import net.kyori.adventure.text.Component;

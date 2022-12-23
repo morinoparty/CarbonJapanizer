@@ -3,7 +3,7 @@
  * @license    LGPLv3
  * @copyright  Copyright ucchy 2014
  */
-package party.morino.japanize;
+package party.morino.carbonjapanizer.japanize;
 
 /**
  * ローマ字表記を漢字変換して返すユーティリティ

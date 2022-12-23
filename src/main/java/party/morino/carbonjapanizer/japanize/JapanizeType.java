@@ -3,7 +3,7 @@
  * @license    LGPLv3
  * @copyright  Copyright ucchy 2020
  */
-package party.morino.japanize;
+package party.morino.carbonjapanizer.japanize;
 
 public enum JapanizeType {
 
