@@ -30,7 +30,7 @@ dependencies {
     implementation("net.kyori", "adventure-serializer-configurate4", "4.12.0")
 
     // Event
-    implementation("net.kyori", "event-api","5.0.0-SNAPSHOT")
+    // implementation("net.kyori", "event-api","5.0.0-SNAPSHOT")
 
     // Utils
     implementation("com.google.inject", "guice", "5.1.0")
@@ -43,7 +43,7 @@ dependencies {
 bukkit {
     name = rootProject.name
     version = project.version as String
-    main = "party.morino.carbonjapanaizer.CarbonJapanizer"
+    main = "party.morino.carbonjapanizer.CarbonJapanizer"
     apiVersion = "1.19"
     description = "Carbonローマ字変換アドオン"
     author = "Unitarou"
