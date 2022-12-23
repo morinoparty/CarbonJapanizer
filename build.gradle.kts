@@ -30,10 +30,11 @@ dependencies {
     implementation("net.kyori", "adventure-serializer-configurate4", "4.12.0")
 
     // Event
-    //implementation("net.kyori", "event-api","5.0.0-SNAPSHOT")
+    implementation("net.kyori", "event-api","5.0.0-SNAPSHOT")
 
     // Utils
     implementation("com.google.inject", "guice", "5.1.0")
+    implementation("org.apache.commons", "commons-lang3", "3.12.0")
 
     // jars
     compileOnly(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
