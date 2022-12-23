@@ -1,4 +1,4 @@
-package morino.party.japanize;
+package party.morino.japanize;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedMap;

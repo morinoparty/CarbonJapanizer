@@ -3,10 +3,7 @@
  * @license    LGPLv3
  * @copyright  Copyright ucchy 2014
  */
-package morino.party.japanize;
-
-import java.util.HashMap;
-import java.util.Map;
+package party.morino.japanize;
 
 /**
  * ローマ字表記を漢字変換して返すユーティリティ
@@ -19,18 +16,16 @@ public class Japanizer {
     /**
      * メッセージの日本語化をする
      * @param org
-     * @param type
-     * @param dictionary
      * @return
      */
-    public static String japanize(String org, JapanizeType type,
-            Map<String, String> dictionary) {
+    public static String japanize(String org) {
 
         // 変換不要なら空文字列を返す
-        if ( type == JapanizeType.NONE || !isNeedToJapanize(org) ) {
+        if (!isNeedToJapanize(org) ) {
             return "";
         }
 
+        /*
         // URL削除
         String deletedURL = org.replaceAll(REGEX_URL, " ");
 
@@ -46,21 +41,28 @@ public class Japanizer {
                 keywordMap.put(key, dictionary.get(dickey));
             }
         }
+         */
 
         // カナ変換
-        String japanized = YukiKanaConverter.conv(keywordLocked);
+        String japanized = YukiKanaConverter.conv(org);
 
         // IME変換
+        japanized = IMEConverter.convByGoogleIME(japanized);
+        /*
         if ( type == JapanizeType.GOOGLE_IME ) {
             japanized = IMEConverter.convByGoogleIME(japanized);
 //        } else if ( type == JapanizeType.SOCIAL_IME ) {
 //            japanized = IMEConverter.convBySocialIME(japanized);
         }
+         */
 
+        /*
         // キーワードのアンロック
         for ( String key : keywordMap.keySet() ) {
             japanized = japanized.replace(key, keywordMap.get(key));
         }
+
+         */
 
         // 返す
         return japanized.trim();
