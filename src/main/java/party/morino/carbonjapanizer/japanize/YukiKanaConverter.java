@@ -3,6 +3,8 @@ package party.morino.carbonjapanizer.japanize;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedMap;
 import org.apache.commons.lang3.StringUtils;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.framework.qual.DefaultQualifier;
 
 import java.util.Map;
 
@@ -12,15 +14,17 @@ import java.util.Map;
  * @author YukiLeafX
  * @see <a href="https://support.microsoft.com/ja-jp/help/883232">参考</a>
  */
-public class YukiKanaConverter {
+@DefaultQualifier(NonNull.class)
+final class YukiKanaConverter {
+
+    private YukiKanaConverter() {
+        throw new IllegalStateException("Utility class");
+    }
 
     private static final ImmutableMap<String, String> MAP;
 
     private static final String[] ROMAJI_LIST;
     private static final String[] HIRAGANA_LIST;
-
-    protected YukiKanaConverter() {
-    }
 
     static {
         ImmutableSortedMap.Builder<String, String> builder = ImmutableSortedMap.reverseOrder();
@@ -317,10 +321,10 @@ public class YukiKanaConverter {
         builder.put("n", "ん").put("nn", "ん").put("n'", "ん").put("xn", "ん");
 
         // 促音を追加する
-        for ( Map.Entry<String, String> entry : builder.build().entrySet() ) {
+        for (Map.Entry<String, String> entry : builder.build().entrySet()) {
             String romaji = entry.getKey();
             String hiragana = entry.getValue();
-            if ( canStartFromSokuon(romaji) ) {
+            if (canStartFromSokuon(romaji)) {
                 builder.put(romaji.charAt(0) + romaji, "っ" + hiragana);
             }
         }
@@ -361,20 +365,7 @@ public class YukiKanaConverter {
      * @return 変換後の「かな文字」
      * @since 2.8.10
      */
-    public static String conv(String romaji) {
+    public static String convert(String romaji) {
         return StringUtils.replaceEach(romaji, ROMAJI_LIST, HIRAGANA_LIST);
-    }
-
-    /**
-     * 全角カッコを半角カッコに変換する (1.8以下のサーバーで全角カッコは表示できないため)
-     *
-     * @param text 変換元のテキスト
-     * @return 全角カッコが半角カッコになったテキスト
-     * @since 2.8.10
-     */
-    public static String fixBrackets(String text) {
-        String[] full = new String[] { "（", "）" };
-        String[] half = new String[] { "(", ")" };
-        return StringUtils.replaceEach(text, full, half);
     }
 }

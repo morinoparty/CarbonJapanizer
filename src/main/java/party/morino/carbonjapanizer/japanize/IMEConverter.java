@@ -6,109 +6,79 @@
 package party.morino.carbonjapanizer.japanize;
 
 
-import com.google.common.io.CharStreams;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.framework.qual.DefaultQualifier;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.*;
+import java.net.URI;
+import java.net.URLEncoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 
 /**
  * ひらがなのみの文章を、IMEを使用して変換します。
  * 使用される変換候補は全て第1候補のため、正しくない結果が含まれることもよくあります。
+ *
  * @author ucchy
  */
-public class IMEConverter {
+@DefaultQualifier(NonNull.class)
+public final class IMEConverter {
 
-    private static final String SOCIAL_IME_URL =
-        "https://www.social-ime.com/api/?string=";
-    private static final String GOOGLE_IME_URL =
-        "https://www.google.com/transliterate?langpair=ja-Hira|ja&text=";
+    private final ComponentLogger componentLogger;
+
+    private static final String GOOGLE_IME_URL = "https://www.google.com/transliterate?langpair=ja-Hira%7Cja&text=";
+
+    public IMEConverter(ComponentLogger componentLogger) {
+        this.componentLogger = componentLogger;
+    }
 
     /**
      * GoogleIMEを使って変換する
+     *
      * @param org 変換元
      * @return 変換後
      */
-    public static String convByGoogleIME(String org) {
-        return conv(org, true);
-    }
-
-    /**
-     * SocialIMEを使って変換する
-     * @param org 変換元
-     * @return 変換後
-     * @deprecated SocialIMEが2016年9月1日にサービス終了するため、このAPIは今後呼び出してはならない。
-     */
-    @Deprecated
-    public static String convBySocialIME(String org) {
-        return conv(org, false);
-    }
-
-    // 変換の実行
-    private static String conv(String org, boolean isGoogleIME) {
-
-        if ( org.length() == 0 ) {
+    public String convert(String org) {
+        if (org.isEmpty()) {
             return "";
         }
 
-        HttpURLConnection urlconn = null;
-        BufferedReader reader = null;
+        var httpClient = HttpClient.newBuilder().build();
+        var request = HttpRequest.newBuilder()
+                .uri(URI.create(GOOGLE_IME_URL + URLEncoder.encode(org, StandardCharsets.UTF_8)))
+                .GET()
+                .build();
+
         try {
-            String baseurl;
-            String encode;
-            if ( isGoogleIME ) {
-                baseurl = GOOGLE_IME_URL + URLEncoder.encode(org , "UTF-8");
-                encode = "UTF-8";
+            var response = httpClient.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+
+            if (response.statusCode() == 200) {
+                String json = response.body();
+
+                return this.parseJson(json);
             } else {
-                baseurl = SOCIAL_IME_URL + URLEncoder.encode(org , "UTF-8");
-                encode = "EUC_JP";
+                var responseMessage = "Invalid Response: " + response.statusCode();
+                this.componentLogger.warn(responseMessage);
             }
-            URL url = new URL(baseurl);
-
-            urlconn = (HttpURLConnection)url.openConnection();
-            urlconn.setRequestMethod("GET");
-            urlconn.setInstanceFollowRedirects(false);
-            urlconn.connect();
-
-            reader = new BufferedReader(
-                    new InputStreamReader(urlconn.getInputStream(), encode));
-
-            String json = CharStreams.toString(reader);
-            String parsed = GoogleIME.parseJson(json);
-//            if ( !Utility.isCB19orLater() ) {
-//                parsed = YukiKanaConverter.fixBrackets(parsed);
-//            }
-
-            return parsed;
-
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (ProtocolException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if ( urlconn != null ) {
-                urlconn.disconnect();
-            }
-            if ( reader != null ) {
-                try {
-                    reader.close();
-                } catch (IOException e) { // do nothing.
-                }
-            }
+        } catch (IOException | InterruptedException e) {
+            this.componentLogger.error("An error occurred while sending the HTTP request: ", e);
+            Thread.currentThread().interrupt();
         }
 
         return "";
     }
 
-    // デバッグ用エントリ
-    public static void main(String[] args) {
-        String testee = "sonnnakotohanak(ry)";
-        System.out.println("original : " + testee);
-        System.out.println("kana : " + YukiKanaConverter.conv(testee));
-        System.out.println("GoogleIME : " + convByGoogleIME(YukiKanaConverter.conv(testee)));
-        System.out.println("SocialIME : " + convBySocialIME(YukiKanaConverter.conv(testee)));
+    private String parseJson(String json) {
+        StringBuilder result = new StringBuilder();
+        for (JsonElement response : new Gson().fromJson(json, JsonArray.class)) {
+            result.append(response.getAsJsonArray().get(1).getAsJsonArray().get(0).getAsString());
+        }
+        return result.toString();
     }
 }
