@@ -21,7 +21,7 @@ dependencies {
     compileOnly(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
 }
 
-version = "0.1"
+version = "0.1.1"
 
 paper {
     version = project.version as String

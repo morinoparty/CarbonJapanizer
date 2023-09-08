@@ -25,7 +25,7 @@ public final class CarbonChatListener {
      */
     public void registerEvent() {
         // 何度も登録されないように
-        if (this.registered) {
+        if (!this.registered) {
             this.onChat();
             this.registered = true;
         }
